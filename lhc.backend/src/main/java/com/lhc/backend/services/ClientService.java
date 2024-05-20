@@ -1,28 +1,40 @@
 package com.lhc.backend.services;
 
-import com.lhc.backend.common.DTO.client.ClientSaveDTO;
 import com.lhc.backend.models.ClientModel;
 import com.lhc.backend.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
+import java.util.List;
 
 @Service
 public class ClientService {
 
     @Autowired
-    ClientRepository clientRepository;
+    private ClientRepository clientRepository;
 
-    public ResponseEntity<ClientModel> saveClient(ClientSaveDTO clientSaveDTO) {
-        ClientModel clienteSalvo = new ClientModel();
-        clienteSalvo.setCpf(clientSaveDTO.getCpf());
-        clienteSalvo.setName(clientSaveDTO.getName());
+    public List<ClientModel> getAllClients() {
+        return clientRepository.findAll();
+    }
 
-        clientRepository.save(clienteSalvo);
+    public Optional<ClientModel> getClientById(String id) {
+        return clientRepository.findById(UUID.fromString(id));
+    }
 
-        return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(clienteSalvo);
+    public ClientModel createClient(ClientModel client) {
+        return clientRepository.save(client);
+    }
+
+    public ClientModel updateClient(String id, ClientModel clientDetails) {
+        ClientModel client = clientRepository.findById(UUID.fromString(id)).orElseThrow();
+        client.setCpf(clientDetails.getCpf());
+        client.setName(clientDetails.getName());
+        return clientRepository.save(client);
+    }
+
+    public void deleteClient(String id) {
+        clientRepository.deleteById(UUID.fromString(id));
     }
 }
