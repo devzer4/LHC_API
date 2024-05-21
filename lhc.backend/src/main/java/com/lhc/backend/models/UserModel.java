@@ -26,9 +26,16 @@ public class UserModel {
 
     private String password;
 
+    private Role role;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    public enum Role {
+        EMPLOYEE,
+        ADMIN,
+    }
 }
