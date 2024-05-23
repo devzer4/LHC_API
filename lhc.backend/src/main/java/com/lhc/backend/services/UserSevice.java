@@ -32,6 +32,7 @@ public class UserSevice {
 
     public UserModel updateUser(UUID id, UserModel userDetails) {
         UserModel user = userRepository.findById(id).orElseThrow();
+        user.setName(userDetails.getName());
         user.setLogin(userDetails.getLogin());
         user.setPassword(userDetails.getPassword());
         user.setRole(userDetails.getRole());
