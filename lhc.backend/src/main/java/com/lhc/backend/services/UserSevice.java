@@ -1,5 +1,6 @@
 package com.lhc.backend.services;
 
+import com.lhc.backend.config.PasswordService;
 import com.lhc.backend.models.UserModel;
 import com.lhc.backend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ public class UserSevice {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordService passwordService;
+
     public List<UserModel> getAllUsers() {
         return userRepository.findAll();
     }
@@ -27,6 +31,7 @@ public class UserSevice {
     }
 
     public UserModel createUser(UserModel user) {
+        user.setPassword(passwordService.hashPassword(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -34,7 +39,9 @@ public class UserSevice {
         UserModel user = userRepository.findById(id).orElseThrow();
         user.setName(userDetails.getName());
         user.setLogin(userDetails.getLogin());
-        user.setPassword(userDetails.getPassword());
+        if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+            user.setPassword(passwordService.hashPassword(userDetails.getPassword()));
+        }
         user.setRole(userDetails.getRole());
         return userRepository.save(user);
     }
@@ -43,16 +50,15 @@ public class UserSevice {
         userRepository.deleteById(id);
     }
 
-    public boolean authUserDesktop(UserModel userAuth){
+    public boolean authUserDesktop(UserModel userAuth) {
         UserModel user = userRepository.findByLogin(userAuth.getLogin())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return user.getPassword().equals(userAuth.getPassword()) && user.getRole().equals(UserModel.Role.ADMIN);
+        return passwordService.checkPassword(userAuth.getPassword(), user.getPassword()) && user.getRole().equals(UserModel.Role.ADMIN);
     }
 
-    public boolean authUserWeb(UserModel userAuth){
+    public boolean authUserWeb(UserModel userAuth) {
         UserModel user = userRepository.findByLogin(userAuth.getLogin())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getPassword().equals(userAuth.getPassword());
+        return passwordService.checkPassword(userAuth.getPassword(), user.getPassword());
     }
 }
