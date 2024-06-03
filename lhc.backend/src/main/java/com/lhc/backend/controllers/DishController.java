@@ -4,6 +4,7 @@ import com.lhc.backend.models.DishModel;
 import com.lhc.backend.models.OrderModel;
 import com.lhc.backend.services.DishService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,5 +27,11 @@ public class DishController {
     public ResponseEntity<DishModel> getDishById(@PathVariable UUID id){
         Optional<DishModel> order = dishService.getDishById(id);
         return order.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<DishModel> createDish(@RequestBody DishModel dish) {
+        DishModel savedDish = dishService.createDish(dish);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedDish);
     }
 }
