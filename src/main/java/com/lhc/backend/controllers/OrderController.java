@@ -22,12 +22,6 @@ public class OrderController {
         return orderService.getAllOrders();
     }
 
-    @GetMapping("/specific/{id}")
-    public ResponseEntity<OrderModel> getOrderById(@PathVariable UUID id) {
-        Optional<OrderModel> order = orderService.getOrderById(id);
-        return order.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
     @GetMapping("/{idClient}")
     public ResponseEntity<List<OrderModel>> getOpenOrdersByIdClient(@PathVariable UUID idClient) {
         List<OrderModel> orders = orderService.getOrderByIdClient(idClient);
@@ -36,6 +30,11 @@ public class OrderController {
         } else {
             return ResponseEntity.ok(orders);
         }
+    }
+
+    @PostMapping("/close-orders")
+    public ResponseEntity<Void> modifyAllForClosed(@RequestBody List<UUID> orderIds){
+        return orderService.closeOrders(orderIds);
     }
 
     @PostMapping

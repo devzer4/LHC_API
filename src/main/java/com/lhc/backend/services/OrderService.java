@@ -1,8 +1,10 @@
 package com.lhc.backend.services;
 
 import com.lhc.backend.models.OrderModel;
+import com.lhc.backend.models.enums.Status;
 import com.lhc.backend.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +31,18 @@ public class OrderService {
     public OrderModel createOrder(OrderModel order) {
         order.setId(UUID.randomUUID());
         return orderRepository.save(order);
+    }
+
+    public ResponseEntity<Void> closeOrders(List<UUID> orderIds){
+        for(UUID orderId: orderIds){
+            Optional<OrderModel> orderOptional = orderRepository.findById(orderId);
+            if(orderOptional.isPresent()){
+                OrderModel order = orderOptional.get();
+                order.setStatus(Status.FECHADO);
+                orderRepository.save(order);
+            }
+        }
+        return ResponseEntity.ok().build();
     }
 
     public OrderModel updateOrder(UUID id, OrderModel orderDetails) {
