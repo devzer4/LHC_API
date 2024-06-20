@@ -1,8 +1,10 @@
 package com.lhc.backend.controllers;
 
+import com.lhc.backend.common.DTO.dish.*;
 import com.lhc.backend.models.OrderModel;
 import com.lhc.backend.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,8 +40,9 @@ public class OrderController {
     }
 
     @PostMapping
-    public OrderModel createOrder(@RequestBody OrderModel order) {
-        return orderService.createOrder(order);
+    public ResponseEntity<OrderDishResponseDTO> createOrder(@RequestBody OrderDishesDTO orderDishesDTO) {
+        OrderDishResponseDTO response = orderService.createOrder(orderDishesDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
