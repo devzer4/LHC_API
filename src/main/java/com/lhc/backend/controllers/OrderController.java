@@ -25,8 +25,9 @@ public class OrderController {
     }
 
     @GetMapping("/{idClient}")
-    public ResponseEntity<List<OrderModel>> getOpenOrdersByIdClient(@PathVariable UUID idClient) {
-        List<OrderModel> orders = orderService.getOrderByIdClient(idClient);
+    public ResponseEntity<List<OrderDishResponseDTO>> getOpenOrdersByIdClient(@PathVariable UUID idClient) {
+        System.out.println("ID DO CLIENTE: " + idClient);
+        List<OrderDishResponseDTO> orders = orderService.getOrderByIdClient(idClient);
         if (orders.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {

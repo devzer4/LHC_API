@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,8 +39,31 @@ public class OrderService {
         return orderRepository.findById(id);
     }
 
-    public List<OrderModel> getOrderByIdClient(UUID id) {
-        return orderRepository.getOrderByIdClient(id);
+    public List<OrderDishResponseDTO> getOrderByIdClient(UUID id) {
+        var orders = orderRepository.getOrderByIdClient(id);
+
+        return orders.stream().map(order -> {
+            var orderDishesList = orderDishesRepository.findAllByIdOrder(order.getId());
+
+            List<OrderDishDetailDTO> orderDishDetails = orderDishesList.stream().map(orderDishes -> {
+                DishModel dish = dishRepository.findById(orderDishes.getIdDish()).orElse(null);
+                if (dish != null) {
+                    return new OrderDishDetailDTO(dish.getId(), dish.getName(), dish.getPrice(), orderDishes.getAmount());
+                } else {
+                    return null;
+                }
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+
+            OrderDishResponseDTO responseDTO = new OrderDishResponseDTO();
+            responseDTO.setIdOrder(order.getId());
+            responseDTO.setIdClient(order.getIdClient());
+            responseDTO.setTotalPrice(order.getTotalPrice());
+            responseDTO.setStatus(order.getStatus().toString());
+            responseDTO.setTableNumber(order.getTableNumber());
+            responseDTO.setOrderDishDetailDTOS(orderDishDetails);
+
+            return responseDTO;
+        }).toList();
     }
 
     public OrderDishResponseDTO createOrder(OrderDishesDTO orderDishesDTO) {
