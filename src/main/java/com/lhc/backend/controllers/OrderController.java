@@ -24,9 +24,18 @@ public class OrderController {
         return orderService.getAllOrders();
     }
 
+    @GetMapping("/web")
+    public ResponseEntity<List<OrderDishResponseDTO>> getOpenOrdersWeb() {
+        List<OrderDishResponseDTO> orders = orderService.getAllOrdersWeb();
+        if (orders.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(orders);
+        }
+    }
+
     @GetMapping("/{idClient}")
     public ResponseEntity<List<OrderDishResponseDTO>> getOpenOrdersByIdClient(@PathVariable UUID idClient) {
-        System.out.println("ID DO CLIENTE: " + idClient);
         List<OrderDishResponseDTO> orders = orderService.getOrderByIdClient(idClient);
         if (orders.isEmpty()) {
             return ResponseEntity.notFound().build();

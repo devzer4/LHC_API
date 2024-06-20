@@ -35,6 +35,33 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
+    public List<OrderDishResponseDTO> getAllOrdersWeb() {
+        var orders = orderRepository.findAll();
+
+        return orders.stream().map(order -> {
+            var orderDishesList = orderDishesRepository.findAllByIdOrder(order.getId());
+
+            List<OrderDishDetailDTO> orderDishDetails = orderDishesList.stream().map(orderDishes -> {
+                DishModel dish = dishRepository.findById(orderDishes.getIdDish()).orElse(null);
+                if (dish != null) {
+                    return new OrderDishDetailDTO(dish.getId(), dish.getName(), dish.getPrice(), orderDishes.getAmount());
+                } else {
+                    return null;
+                }
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+
+            OrderDishResponseDTO responseDTO = new OrderDishResponseDTO();
+            responseDTO.setIdOrder(order.getId());
+            responseDTO.setIdClient(order.getIdClient());
+            responseDTO.setTotalPrice(order.getTotalPrice());
+            responseDTO.setStatus(order.getStatus().toString());
+            responseDTO.setTableNumber(order.getTableNumber());
+            responseDTO.setOrderDishDetailDTOS(orderDishDetails);
+
+            return responseDTO;
+        }).toList();
+    }
+
     public Optional<OrderModel> getOrderById(UUID id) {
         return orderRepository.findById(id);
     }
